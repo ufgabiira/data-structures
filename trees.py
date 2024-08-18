@@ -1,5 +1,4 @@
 """ Tree implementation by Gabriel Ferreira (github.com/ufgabiira)
-TODO: implement TreeNode and Tree classes __str__ method
 TODO: finish documentation
 """
 
@@ -37,6 +36,10 @@ class TreeNode:
         self.__data = data
         self.__children = []
         self.__parent = None
+        self.__depth = 0
+
+    def __str__(self) -> str:
+        return f"{self.__data}"
 
     def data(self):
         return self.__data
@@ -46,14 +49,27 @@ class TreeNode:
     
     def parent(self) -> Self|None:
         return self.__parent
+
+    def depth(self):
+        return self.__depth
+
+    def subtree(self):
+        string = ""
+        if self.__data:
+            string = f"{(self.__depth-1)*'  |__'}{self.__data}\n"
+        for child in self.children():
+            string = f"{string}{child.subtree()}"
+        else:
+            return string
     
     def set_data(self, new_data):
         self.__data = new_data
         return self.__data
     
-    def add_child(self, data) -> None:
+    def add_child(self, data, depth) -> None:
         new_node = TreeNode(data)
         new_node.__parent = self
+        new_node.__depth = depth
         self.__children.append(new_node)
         
     def remove_self(self) -> None:
@@ -65,19 +81,29 @@ class TreeNode:
 class Tree:
     def __init__(self) -> None:
         self.__root = TreeNode()
+        self.__height = 0
+        self.__count = 0
+
+    def __str__(self) -> str:
+        return self.__root.subtree()
 
     def __get_node(self, node, data):
+        self.__count += 1
         if node.data() == data:
             return node
         for child in node.children():
             target = self.__get_node(child, data)
             if target is not None:
                 return target
+            self.__count -= 1
         
     def add_at(self, new_data, parent_data=None):
+        self.__count = 0
         target = self.__get_node(self.__root, parent_data)
         if target:
-            target.add_child(new_data)
+            if self.__count > self.__height:
+                self.__height = self.__count
+            target.add_child(new_data, self.__count)
 
     def remove(self, node_data):
         target = self.__get_node(self.__root, node_data)
@@ -88,22 +114,3 @@ class Tree:
         
     def find(self, value):
         return self.__get_node(self.__root, value)
-
-
-if __name__ == "__main__":
-    t = Tree()
-    t.add_at("Notebook")
-    t.add_at("Smartphone")    
-    t.add_at("Tablet")
-
-    t.add_at(parent_data="Smartphone", new_data="Redmi Note 13")
-    t.add_at(parent_data="Smartphone", new_data="Poco X3 NFC")
-    t.add_at("Samsung Galaxy Tab S6 Lite", "Tablet")
-
-    print(t.find("Samsung Galaxy Tab S6 Lite"))
-
-    t.remove("Notebook")
-    t.remove("Tablet")
-    t.remove("Redmi Note 13")
-    
-    print(t)
