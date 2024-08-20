@@ -2,7 +2,7 @@
 TODO: finish documentation
 """
 
-from typing import Self
+from typing import Self # type hinting purposes
 
 class TreeNode:
     """ Represents a node in a the Tree object.
